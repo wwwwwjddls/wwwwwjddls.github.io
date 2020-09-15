@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Test Github Blot
+title: Test Github Blog
 description: >
   테스트 파일입니다.
   
