@@ -7,5 +7,7 @@ description: >
 tags: [hydejack]
 ---
 
-#테스트 파일
-Hello Gitblog
+#테스트 파일  
+Hello GithubBlog
+
+[github]({{ site.baseurl }}/assets/img/github.png){:.lead}
