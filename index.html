@@ -141,8 +141,8 @@
                              : 45;
                 
                 let c_tran = ( add * change_d( transfer ) ) + ( add * change_d( transfer ) * 0.1 );
-                let rate   = ( add - cost - c_tran ) / ( r_cost + c_tran ) * 100;
-                let c_rate = parseInt( Math.abs( rate - 10 ) );
+                //let c_rate = parseInt( Math.abs( rate - 10 ) );
+                let profit = add - cost - c_tran;
 
                 if( my_bid_flag ) text += '<tr class="my_bid_c">';
                 else text += '<tr id="' + lowest + '" class="c' + transfer + '">';  
@@ -159,11 +159,12 @@
                 text += '   <td>' + numberComma2( ( add - cost ) / r_cost * 100 ) + ' %</td>';
                 text += '   <td>' + numberComma2( transfer ) + ' %</td>';
                 text += '   <td>' + numberComma2( c_tran ) + '</td>';
-                text += '   <td>' + numberComma2( add - cost - c_tran ) + '</td>';
-                text += '   <td>' + numberComma2( rate ) + ' %</td>';
+                text += '   <td>' + numberComma2( profit ) + '</td>';
+                text += '   <td>' + numberComma2( ( add - cost - c_tran ) / ( r_cost + c_tran ) * 100 ) + ' %</td>';
                 text += '</tr>';
 
-                if( c_rate < opti[0] || opti.length === 0 ) opti = [ c_rate, lowest ];
+                //if( c_rate < opti[0] || opti.length === 0 ) opti = [ c_rate, lowest ];
+                if( profit < opti[0] || opti.length === 0 ) opti = [ profit, lowest ] 
                 if( my_bid_flag ) break;
 
                 lowest += 1000;
