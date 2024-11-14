@@ -141,8 +141,9 @@
                              : 45;
                 
                 let c_tran = ( add * change_d( transfer ) ) + ( add * change_d( transfer ) * 0.1 );
-                //let c_rate = parseInt( Math.abs( rate - 10 ) );
                 let profit = add - cost - c_tran;
+                let c_profit = Math.abs( profit - 1000 );
+
 
                 if( my_bid_flag ) text += '<tr class="my_bid_c">';
                 else text += '<tr id="' + lowest + '" class="c' + transfer + '">';  
@@ -164,7 +165,7 @@
                 text += '</tr>';
 
                 //if( c_rate < opti[0] || opti.length === 0 ) opti = [ c_rate, lowest ];
-                if( profit < opti[0] || opti.length === 0 ) opti = [ profit, lowest ] 
+                if( c_profit < opti[0] || opti.length === 0 ) opti = [ c_profit, lowest ] 
                 if( my_bid_flag ) break;
 
                 lowest += 1000;
