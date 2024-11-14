@@ -24,7 +24,7 @@
             font-size: 13px;
         }
 
-        #ouput_p th {
+        #my_output_p th {
             width: 71px;
         }
 
@@ -63,6 +63,10 @@
         .c45 {
             background-color: #fa0000;
         }
+
+        .my_bid_c {
+            background-color: #feffc9;
+        }
     </style>
     <script>
         // 처음표기
@@ -83,31 +87,37 @@
 
             const result_tb  = document.getElementById( 'result_tb' );
             let text         = '';
+            let opti         = [];                                                    // 최적의 입찰가
+            let my_bid_flag  = false;
 
-            let lowest       = change_n( document.getElementById( 'lowest' ).value );           // 최저가
-            let get          = document.getElementById( 'get' ).value;                          // 취득세율
-            let loan         = document.getElementById( 'loan' ).value;                         // 대출률
-            let interest     = document.getElementById( 'interest' ).value;                     // 이자율
-            let interest_day = document.getElementById( 'interest_day' ).value;                 // 이자개월
-            let earlier      = document.getElementById( 'earlier' ).value;                      // 중도상환
-            let broke        = document.getElementById( 'broke' ).value;                        // 중개비율
-            let sell         = change_n( document.getElementById( 'sell' ).value );             // 판매가
-            let law          = change_n( document.getElementById( 'law' ).value );              // 법무비
-            let manage       = change_n( document.getElementById( 'manage' ).value );           // 관리비
-            let vacate       = change_n( document.getElementById( 'vacate' ).value );           // 명도비
-            let repair       = change_n( document.getElementById( 'repair' ).value );           // 수리비
+            let lowest       = change_n( document.getElementById( 'lowest' ).value );  // 최저가
+            let get          = document.getElementById( 'get' ).value;                // 취득세율
+            let loan         = document.getElementById( 'loan' ).value;               // 대출률
+            let interest     = document.getElementById( 'interest' ).value;           // 이자율
+            let interest_day = document.getElementById( 'interest_day' ).value;       // 이자개월
+            let earlier      = document.getElementById( 'earlier' ).value;            // 중도상환
+            let broke        = document.getElementById( 'broke' ).value;              // 중개비율
+            let sell         = change_n( document.getElementById( 'sell' ).value );   // 판매가
+            let law          = change_n( document.getElementById( 'law' ).value );    // 법무비
+            let manage       = change_n( document.getElementById( 'manage' ).value ); // 관리비
+            let vacate       = change_n( document.getElementById( 'vacate' ).value ); // 명도비
+            let repair       = change_n( document.getElementById( 'repair' ).value ); // 수리비
             let etc          = change_n( document.getElementById( 'etc' ).value );    // 기타비용
+            let my_bid       = change_n( document.getElementById( 'my_bid' ).value );  // 최저가
 
             //
-            document.getElementById( 'c_lowest' ).value = numberComma2( lowest*0.1 );
-    
+            if( 0 < my_bid ) my_bid_flag = true;
+            else {
+                document.getElementById( 'my_bid' ).value  = 0;
+                document.getElementById('my_bid').disabled = true; 
+            }
+            if( my_bid_flag ) lowest = my_bid;
+
             //
-            result_tb.innerHTML = '';
+            if( !my_bid_flag ) result_tb.innerHTML = '';
 
             while(true) {             
                 let add     = sell - lowest;
-
-                if( add <= 0 ) break;
 
                 let c_get   = lowest * change_d( get );
                 let c_loan  = lowest * change_d( loan );
@@ -117,7 +127,9 @@
 
                 let cost    = c_get + law + manage + vacate + repair + ( c_inter * interest_day ) + c_earli + c_broke + etc;
                 let r_cost  = ( lowest - c_loan ) + c_get + law + manage + vacate + repair + ( c_inter * interest_day ) + c_earli + c_broke + etc;
-                
+            
+                if( sell <= lowest + cost ) break;
+
                 // 양도세
                 let transfer = 1400 >= add ? 6
                              : 5000 >= add ? 15
@@ -129,8 +141,11 @@
                              : 45;
                 
                 let c_tran = ( add * change_d( transfer ) ) + ( add * change_d( transfer ) * 0.1 );
+                let rate   = ( add - cost - c_tran ) / ( r_cost + c_tran ) * 100;
+                let c_rate = parseInt( Math.abs( rate - 10 ) );
 
-                text += '<tr class="c' + transfer + '">';
+                if( my_bid_flag ) text += '<tr class="my_bid_c">';
+                else text += '<tr id="' + lowest + '" class="c' + transfer + '">';  
                 text += '   <td>' + numberComma2( lowest ) + '</td>';
                 text += '   <td>' + numberComma2( c_get ) + '</td>';
                 text += '   <td>' + numberComma2( c_loan ) + '</td>';
@@ -145,13 +160,45 @@
                 text += '   <td>' + numberComma2( transfer ) + ' %</td>';
                 text += '   <td>' + numberComma2( c_tran ) + '</td>';
                 text += '   <td>' + numberComma2( add - cost - c_tran ) + '</td>';
-                text += '   <td>' + numberComma2( ( add - cost - c_tran ) / ( r_cost + c_tran ) * 100 ) + ' %</td>';
+                text += '   <td>' + numberComma2( rate ) + ' %</td>';
                 text += '</tr>';
+
+                if( c_rate < opti[0] || opti.length === 0 ) opti = [ c_rate, lowest ];
+                if( my_bid_flag ) break;
 
                 lowest += 1000;
             }
 
             result_tb.insertAdjacentHTML( 'beforeend', text );
+
+            if( !my_bid_flag ) {
+                document.getElementById( opti[1] ).style.border = '2px solid red';
+                document.getElementById('my_bid').value = numberComma2( opti[1] ); 
+                document.getElementById('my_bid').disabled = false; 
+            }
+        }
+
+        //
+        function reset() {
+            const result_tb  = document.getElementById( 'result_tb' );
+            result_tb.innerHTML = '';
+
+            document.getElementById( 'lowest' ).value       = 0; 
+            document.getElementById( 'get' ).value          = 1.1;
+            document.getElementById( 'loan' ).value         = 70;
+            document.getElementById( 'interest' ).value     = 5;
+            document.getElementById( 'interest_day' ).value = 0;
+            document.getElementById( 'earlier' ).value      = 1
+            document.getElementById( 'broke' ).value        = 0.4
+            document.getElementById( 'sell' ).value         = 0;
+            document.getElementById( 'law' ).value          = 0;
+            document.getElementById( 'manage' ).value       = 0;
+            document.getElementById( 'vacate' ).value       = 0; 
+            document.getElementById( 'repair' ).value       = 0;
+            document.getElementById( 'etc' ).value          = 0;
+            document.getElementById( 'my_bid' ).value       = 0;
+
+            document.getElementById('my_bid').disabled = true; 
         }
     </script>
 </head>
@@ -171,7 +218,7 @@
             <tr>
                 <td><input type="text" id="lowest" oninput="numberComma(this);" value="0"/></td>
                 <td><input type="text" id="get" value="1.1"/></td>
-                <td><input type="text" id="loan" value="60"/></td>
+                <td><input type="text" id="loan" value="70"/></td>
                 <td><input type="text" id="law" oninput="numberComma(this);" value="0"/></td>
                 <td><input type="text" id="vacate" oninput="numberComma(this);" value="0"/></td>
                 <td><input type="text" id="manage" oninput="numberComma(this);" value="0"/></td>
@@ -184,7 +231,7 @@
                 <th>중도상환 %</th>
                 <th>기타비용</th>
                 <th>매도가</th>
-                <th>보증금</th>
+                <th style="color: red">나의 입찰가</th>
             </tr>
             <tr>
                 <td><input type="text" id="interest" value="5"/></td>
@@ -193,15 +240,16 @@
                 <td><input type="text" id="earlier" value="1"/></td>
                 <td><input type="text" id="etc" oninput="numberComma(this);" value="0"/></td>
                 <td><input type="text" id="sell" oninput="numberComma(this);" value="0"/></td>
-                <td><input type="text" id="c_lowest" value="0" disabled /></td>
+                <td><input type="text" id="my_bid" oninput="numberComma(this);" value="0" disabled /></td>
             </tr>    
         </table>
 
         </br>
         <button onclick="calculate();">계산하기</button>
-
+        <button onclick="reset();">리셋하기</button>
         </br>
         <span>
+            <p><strong>* 나의 입찰가 0원은 불가능 > 0원은 다시계산</strong></p>
             <p>* 사용금액 : 취득세 + 법무비 + 관리비 + 명도비 + 수리비 + 이자 + 중도 + 중개 + 기타비용</p>
             <p>* 세전수입률 : 세전수입 / ( 입찰금액 - 대출 ) + 사용금액 * 100</p>
             <p>* 세후수입률 : 세전수입 / ( 입찰금액 - 대출 ) + 사용금액 - ( 양도세 + 시방세 ) * 100</p>
