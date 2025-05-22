@@ -131,13 +131,14 @@
                 if( sell <= lowest + cost ) break;
 
                 // 양도세
-                let transfer = 1400 >= ( add - cost ) ? 6
-                             : 5000 >= ( add - cost ) ? 15
-                             : 8800 >= ( add - cost ) ? 24
-                             : 15000 >= ( add - cost ) ? 35
-                             : 30000 >= ( add - cost ) ? 38
-                             : 50000 >= ( add - cost ) ? 40
-                             : 100000 >= ( add - cost ) ? 42
+                let tmp = ( add - cost ) + vacate + repair;
+                let transfer = 1400 >= /*( add - cost )*/ tmp ? 6
+                             : 5000 >= /*( add - cost )*/ tmp ? 15
+                             : 8800 >= /*( add - cost )*/ tmp ? 24
+                             : 15000 >= /*( add - cost )*/ tmp ? 35
+                             : 30000 >= /*( add - cost )*/ tmp ? 38
+                             : 50000 >= /*( add - cost )*/ tmp ? 40
+                             : 100000 >= /*( add - cost )*/ tmp ? 42
                              : 45;
                 
                 let c_tran = ( add * change_d( transfer ) ) + ( add * change_d( transfer ) * 0.1 );
@@ -157,8 +158,8 @@
                 text += '   <td>' + numberComma2( lowest + cost ) + '</td>';
                 text += '   <td>' + numberComma2( add - cost ) + '</td>';
                 text += '   <td>' + numberComma2( ( add - cost ) / r_cost * 100 ) + ' %</td>';
-                text += '   <td>' + numberComma2( transfer ) + ' %</td>';
-                text += '   <td>' + numberComma2( c_tran ) + '</td>';
+                text += '   <td>' + numberComma2( transfer ) + ' %</td>'; // 양도세율
+                text += '   <td>' + numberComma2( c_tran ) + '</td>'; // 양도 / 지방세
                 text += '   <td>' + numberComma2( add - cost - c_tran ) + '</td>';
                 text += '   <td>' + numberComma2( rate ) + ' %</td>';
                 text += '</tr>';
